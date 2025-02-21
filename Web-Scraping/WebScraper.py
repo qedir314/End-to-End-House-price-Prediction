@@ -70,7 +70,8 @@ class WebScraper:
         # Prepare the data for CSV row
         return {
             'Item_id': listing['Item ID'],
-            'Location': listing['Location'],
+            'Location1': listing['Location1'],
+            'Location2': listing['Location2'],
             'room_size': room_size,
             'area': area,
             'current_floor': current_floor,
@@ -195,7 +196,7 @@ class WebScraper:
                 count += len(items)
                 for item in items:
                     listing = self._parse_listing_item(
-                        item)
+                        item, base_link)
                     if listing:
                         page_listings.append(listing)
                 if not self._process_page_listings(
@@ -207,7 +208,7 @@ class WebScraper:
                 page_num += 1
                 print(count)
 
-    def _parse_listing_item(self, item):
+    def _parse_listing_item(self, item, base_link):
         item_link = item.find("a", class_="item_link")
         if not item_link:
             return None
@@ -221,15 +222,20 @@ class WebScraper:
         price_val = price_span.text.strip() if price_span else None
 
         # Extract location
+        # location_div = item.find("div", class_="location")
+        # location = location_div.text.strip() if location_div else None
+        pattern = r"baki/([^/]+)/"
+        location1 = re.search(pattern, base_link).group(1)
+
         location_div = item.find("div", class_="location")
-        location = location_div.text.strip() if location_div else None
+        location2 = location_div.text.strip() if (location_div) else None
 
         # Extract room count, size, and floor information
         ul_name = item.find("ul", class_="name")
         details = [li.text.strip() for li in
                    ul_name.find_all(
                        "li")] if ul_name else []
-
+        # //*[@id="js-items-search"]/div[2]/div[1]/div[3]/div[2]
         img_tag = item.find("img")
         alt_text = img_tag.get("alt",
                                "N/A") if img_tag else "N/A"
@@ -249,7 +255,8 @@ class WebScraper:
 
         return {
             "Item ID": data_item_id,
-            "Location": location,
+            "Location1": location1,
+            "Location2": location2,
             "Details": details,
             "Building Type": building_type,
             "Repair Status": repair_status,
@@ -268,13 +275,13 @@ class WebScraper:
 
     def _check_next_page(self, soup, current_page):
         next_page = soup.find("a", rel="next")
-        if current_page >= 100:
-            return False
+        # if current_page >= 2:
+        #     return False
         if len(self.house_data) < 5 and not next_page:
             return False
         return bool(next_page)
 
-    def save_to_csv(self, filename='raw_data.csv'):
+    def save_to_csv(self, filename='raw_data1.csv'):
         target_dir = os.path.join(
             os.path.dirname(os.getcwd()), 'Data')
 
@@ -287,7 +294,8 @@ class WebScraper:
                   encoding='utf-8') as f:
             writer = csv.DictWriter(f, fieldnames=[
                 'Item_id',
-                'Location',
+                'Location1',
+                'Location2',
                 'room_size',
                 'area',
                 'current_floor',
@@ -303,10 +311,10 @@ class WebScraper:
 
 if __name__ == "__main__":
     with WebScraper() as scraper:
-        print("Scraping region links...")
-        scraper.scrape_region_links()
-        print("Scraping metro links...")
-        scraper.scrape_metro_links()
+        # print("Scraping region links...")
+        # scraper.scrape_region_links()
+        # print("Scraping metro links...")
+        # scraper.scrape_metro_links()
         start_time = time.time()
         print("Scraping house data...")
         scraper.scrape_house_data()
