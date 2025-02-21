@@ -235,7 +235,7 @@ class WebScraper:
         details = [li.text.strip() for li in
                    ul_name.find_all(
                        "li")] if ul_name else []
-        # //*[@id="js-items-search"]/div[2]/div[1]/div[3]/div[2]
+
         img_tag = item.find("img")
         alt_text = img_tag.get("alt",
                                "N/A") if img_tag else "N/A"
@@ -311,10 +311,10 @@ class WebScraper:
 
 if __name__ == "__main__":
     with WebScraper() as scraper:
-        # print("Scraping region links...")
-        # scraper.scrape_region_links()
-        # print("Scraping metro links...")
-        # scraper.scrape_metro_links()
+        print("Scraping region links...")
+        scraper.scrape_region_links()
+        print("Scraping metro links...")
+        scraper.scrape_metro_links()
         start_time = time.time()
         print("Scraping house data...")
         scraper.scrape_house_data()
