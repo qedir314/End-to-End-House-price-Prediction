@@ -33,8 +33,8 @@ app = Flask(__name__,
             static_folder=static_dir)
 CORS(app)
 
-model = joblib.load("../Models/trained_stacking_model.pkl")
-model_columns = joblib.load("../Models/model_columns.pkl")
+model = joblib.load("../Models/random_forest_model.pkl")
+model_columns = joblib.load("../Models/random_forest_columns.pkl")
 
 
 def preprocess_input(custom_input):
