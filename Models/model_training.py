@@ -1,13 +1,9 @@
 import pandas as pd
 import joblib
-from sklearn.ensemble import StackingRegressor, RandomForestRegressor, GradientBoostingRegressor, AdaBoostRegressor
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score
-from sklearn.tree import DecisionTreeRegressor
-from sklearn.svm import SVR
-from sklearn.neighbors import KNeighborsRegressor
-from xgboost import XGBRegressor
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
+import numpy as np
 
 # Load the processed dataset
 df = pd.read_csv("../Data/processed_data.csv")
@@ -18,52 +14,27 @@ y = df["price (AZN)"]  # Target variable
 # Split data into train and test sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-model_columns = list(X_train.columns)
+# Create RandomForestRegressor with predefined parameters
+rf_model = RandomForestRegressor(random_state=42)
 
-base_models = [
-    ('Linear Regression', LinearRegression()),
-    ('Decision Tree', DecisionTreeRegressor(random_state=42)),
-    ('Random Forest', RandomForestRegressor(
-    n_estimators=275,
-    min_samples_split=5,
-    min_samples_leaf=1,
-    max_features="sqrt",
-    max_depth=15,
-    random_state=42)),
-    ('Gradient Boosting', GradientBoostingRegressor(random_state=42)),
-    ('XGBRegressor', XGBRegressor(random_state=42)),
-    ('KNeighborsRegressor', KNeighborsRegressor()),
-    ('AdaBoostRegressor', AdaBoostRegressor(random_state=42))
-]
+# Train the model
+rf_model.fit(X_train, y_train)
 
-accuracy_scores = []
-for model in base_models:
-    model[1].fit(X_train, y_train)
-    y_pred = model[1].predict(X_test)
-    accuracy_scores.append((model[0], r2_score(y_test, y_pred)))
+# Predictions
+y_pred = rf_model.predict(X_test)
 
-print("Base models trained successfully.")
+# Evaluation Metrics
+r2 = r2_score(y_test, y_pred)
+mse = mean_squared_error(y_test, y_pred)
+rmse = np.sqrt(mse)
 
-# Select models with R2 score > 0.80
-best_models = [(name, model) for (name, model), score in zip(base_models, accuracy_scores) if
-               score[1] > 0.80]
+print(f"R² Score: {r2:.4f}")
+print(f"Root Mean Squared Error: {rmse:.4f}")
 
-stacking_model = StackingRegressor(
-    estimators=best_models,
-    final_estimator=RandomForestRegressor(random_state=42),
-    cv=5
-)
-
-# Train stacking model
-stacking_model.fit(X_train, y_train)
-print("Stacking model training complete.")
-print("R2 score:", stacking_model.score(X_test, y_test))
-
-# Save the trained model
-joblib.dump(stacking_model, "../Models/trained_stacking_model.pkl", compress=True)
-
-print("Model training complete. Saved as '../Models/trained_stacking_model.pkl'.")
+# Save the model
+joblib.dump(rf_model, "../Models/random_forest_model.pkl", compress=True)
 
 # Save model columns
-joblib.dump(model_columns, "model_columns.pkl")
-print("Saved model columns successfully!")
+joblib.dump(list(X.columns), "../Models/random_forest_columns.pkl")
+
+print("Model training complete!")
