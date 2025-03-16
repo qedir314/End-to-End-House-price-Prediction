@@ -1,8 +1,13 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import joblib
 import pandas as pd
 import numpy as np
 from flask_cors import CORS
+import os
+
+base_dir = os.path.dirname(os.path.abspath(__file__))
+template_dir = os.path.join(base_dir, 'templates')
+static_dir = os.path.join(base_dir, 'static')
 
 
 class LocationProcessor:
@@ -23,17 +28,10 @@ class LocationProcessor:
         return sorted(filtered_locations)
 
 
-app = Flask(__name__)
-CORS(app, resources={
-    r"/*": {
-        "origins": [
-            "http://localhost:63342",
-            "http://127.0.0.1:63342",
-            "http://localhost:5000"
-        ]
-    }
-})
-
+app = Flask(__name__,
+            template_folder=template_dir,
+            static_folder=static_dir)
+CORS(app)
 
 model = joblib.load("../Models/trained_stacking_model.pkl")
 model_columns = joblib.load("../Models/model_columns.pkl")
@@ -70,6 +68,10 @@ def preprocess_input(custom_input):
 
     return df_input
 
+# Serve the frontend
+@app.route("/")
+def index():
+    return render_template("index.html")  # Loads the frontend
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -107,4 +109,4 @@ def get_locations():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(debug=True)

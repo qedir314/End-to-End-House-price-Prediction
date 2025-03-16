@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const location2Select = document.getElementById('location2');
 
     function populateLocation1() {
-        fetch('http://localhost:5000/get_locations', {
+        fetch('/get_locations', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const selectedLocation1 = this.value;
         console.log('Selected Location1:', selectedLocation1);
 
-        fetch(`http://127.0.0.1:5000/get_locations?location1=${selectedLocation1}`)
+        fetch(`get_locations?location1=${selectedLocation1}`)
             .then(response => response.json())
             .then(data => {
                 console.log('Received Location2 data:', data);
@@ -118,7 +118,7 @@ function predictPrice() {
         Location2: document.getElementById("location2").value
     };
 
-    fetch("http://127.0.0.1:5000/predict", {
+    fetch("/predict", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
