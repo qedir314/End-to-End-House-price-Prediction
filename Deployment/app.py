@@ -2,8 +2,38 @@ from flask import Flask, request, jsonify
 import joblib
 import pandas as pd
 import numpy as np
+from flask_cors import CORS
+
+
+class LocationProcessor:
+    def __init__(self, csv_path='..//.//Data/raw_data1.csv'):
+        # Read CSV once and cache the data
+        self.df = pd.read_csv(csv_path)
+
+    def get_location1_options(self):
+        # Get unique Location1 values, properly capitalized
+        return sorted(self.df['Location1'].str.title().unique().tolist())
+
+    def get_location2_options(self, location1):
+        # Filter Location2 options for specific Location1
+        filtered_locations = self.df[
+            self.df['Location1'].str.lower() == location1.lower()
+            ]['Location2'].str.title().unique().tolist()
+
+        return sorted(filtered_locations)
+
 
 app = Flask(__name__)
+CORS(app, resources={
+    r"/*": {
+        "origins": [
+            "http://localhost:63342",
+            "http://127.0.0.1:63342",
+            "http://localhost:5000"
+        ]
+    }
+})
+
 
 model = joblib.load("../Models/trained_stacking_model.pkl")
 model_columns = joblib.load("../Models/model_columns.pkl")
@@ -52,6 +82,28 @@ def predict():
 
     except Exception as e:
         return jsonify({"error": str(e)})
+
+@app.route('/get_locations')
+def get_locations():
+    # Add print statements for debugging
+    print("Location Request Received")
+    processor = LocationProcessor()
+
+    location1 = request.args.get('location1', '')
+    print(f"Received location1: {location1}")
+
+    if not location1:
+        location1_options = processor.get_location1_options()
+        print(f"Location1 Options: {location1_options}")
+        return jsonify({
+            'location1_options': location1_options
+        })
+    else:
+        location2_options = processor.get_location2_options(location1)
+        print(f"Location2 Options for {location1}: {location2_options}")
+        return jsonify({
+            'location2_options': location2_options
+        })
 
 
 if __name__ == '__main__':

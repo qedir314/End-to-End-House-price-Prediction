@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>House Price Prediction</title>
+    <link rel="stylesheet" href="..//static/styles.css">
+</head>
+<body>
+    <h2>House Price Prediction</h2>
+    <form id="prediction-form">
+        <label for="location1">Location 1:</label>
+        <select id="location1" name="location1" required>
+            <!-- Options will be populated dynamically -->
+        </select><br>
+
+        <label for="location2">Location 2:</label>
+        <select id="location2" name="location2" required>
+            <!-- Options will be populated dynamically based on Location1 -->
+        </select><br>
+
+        <label for="area">Area (sqm):</label>
+        <input type="number" id="area" placeholder="Area (sqm)" required><br>
+
+        <label for="total_rooms">Total rooms::</label>
+        <input type="number" id="total_rooms" placeholder="Room" required><br>
+
+        <label for="current_floor">Current Floor:</label>
+        <input type="number" id="current_floor" placeholder="Current Floor" required><br>
+
+        <label for="total_from">Total Floors:</label>
+        <input type="number" id="total_from" placeholder="Total Floors" required><br>
+
+        <label for="building_type">Building Type:</label>
+        <select id="building_type">
+            <option value="old">Old</option>
+            <option value="new">New</option>
+        </select><br>
+
+        <label for="bill_of_sale">Bill of Sale:</label>
+        <select id="bill_of_sale">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select><br>
+
+        <label for="repair_status">Repair Status:</label>
+        <select id="repair_status">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select><br>
+
+        <div class="button-container">
+            <button type="button" onclick="predictPrice()">Predict</button>
+            <button type="button" onclick="clearForm()" class="clear-btn">Clear</button>
+        </div>
+    </form>
+
+    <div id="result"></div>
+
+    <script src="..//static/script.js"></script>
+</body>
+</html>
