@@ -11,7 +11,7 @@ static_dir = os.path.join(base_dir, 'static')
 
 
 class LocationProcessor:
-    def __init__(self, csv_path='..//.//Data/raw_data1.csv'):
+    def __init__(self, csv_path='Data/raw_data1.csv'):
         # Read CSV once and cache the data
         self.df = pd.read_csv(csv_path)
 
@@ -33,8 +33,8 @@ app = Flask(__name__,
             static_folder=static_dir)
 CORS(app)
 
-model = joblib.load("../Models/random_forest_model.pkl")
-model_columns = joblib.load("../Models/random_forest_columns.pkl")
+model = joblib.load("Models/random_forest_model.pkl")
+model_columns = joblib.load("Models/random_forest_columns.pkl")
 
 
 def preprocess_input(custom_input):
